@@ -1,6 +1,6 @@
 import requests
 from pprint import pprint
-
+from itertools import count
 
 def predict_rub_salary(vacancy: dict) -> float:
     if (vacancy["salary"]["currency"] != "RUR" or 
@@ -18,26 +18,33 @@ def get_hh_vacancies() -> dict:
     programming_languages_vacansies = dict.fromkeys(
         ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
     )
-    for lang in programming_languages_vacansies:
-        params = {
-            "area": 1,  # 1 - Москва
-            "text": f"Программист {lang}",
-            "period": 30,
-            "currency": "RUR",
-            "only_with_salary": True,
-        }
-        response = requests.get('https://api.hh.ru/vacancies', params=params)
-        response.raise_for_status()
-        vacancies = response.json()["items"]
-
-        salaries = [predict_rub_salary(vacancy) for vacancy in vacancies if predict_rub_salary(vacancy)]
+    
+    for language_vacancy in programming_languages_vacansies:
+        vacansies = []
+        for page in count():
+            params = {
+                "area": 1,  # 1 - Москва
+                "text": f"Программист {language_vacancy}",
+                "period": 30,
+                "currency": "RUR",
+                "only_with_salary": True,
+                "page": page,
+            }
+            response = requests.get('https://api.hh.ru/vacancies', params=params)
+            response.raise_for_status()
+            vacansies.extend(response.json()["items"])
+            if page >= response.json()["pages"]:
+                break
+            
+        salaries = [predict_rub_salary(vacancy) for vacancy in vacansies if predict_rub_salary(vacancy)]
         average_salary = sum(salaries) / len(salaries)
-        programming_languages_vacansies[lang] = {
+        programming_languages_vacansies[language_vacancy] = {
             "vacancies_found": response.json()["found"],
             "vacancies_processed": len(salaries),
             "average_salary": int(average_salary)
         }
     return programming_languages_vacansies
+
 
 def main():
     try: 
