@@ -19,37 +19,35 @@ def predict_rub_salary(vacancy: dict) -> float:
         return vacancy["salary"]["to"] * 0.8
 
 
-def get_hh_vacancies() -> dict:
-    programming_languages_vacansies = dict.fromkeys(
-        ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
-    )
-    
-    for language_vacancy in programming_languages_vacansies:
-        vacansies = []
-        for page in count():
-            params = {
-                "area": 1,  # 1 - Москва
-                "text": f"Программист {language_vacancy}",
-                "period": 30,
-                "page": page,
-                'per_page': 100,
-                "currency": "RUR",                
-                "only_with_salary": True,                
-            }
-            response = requests.get('https://api.hh.ru/vacancies', params=params)
-            response.raise_for_status()
-            vacansies.extend(response.json()["items"])
-            if page >= response.json()["pages"]:
-                break
-            
-        salaries = [predict_rub_salary(vacancy) for vacancy in vacansies if predict_rub_salary(vacancy)]
-        average_salary = sum(salaries) / len(salaries)
-        programming_languages_vacansies[language_vacancy] = {
+def get_hh_vacancies(programming_language: str) -> dict:
+    params = {
+        "area": 1,  # 1 - Москва
+        "text": f"Программист {programming_language}",
+        "period": 30,
+        "page": 0,
+        'per_page': 100,
+        "currency": "RUR",                
+        "only_with_salary": True,                
+    }
+
+    vacansies = []
+    for page in count():
+        params["page"] = page
+        response = requests.get('https://api.hh.ru/vacancies', params=params)
+        response.raise_for_status()
+        vacansies.extend(response.json()["items"])
+        if page >= response.json()["pages"]:
+            break
+        
+    salaries = [predict_rub_salary(vacancy) for vacancy in vacansies if predict_rub_salary(vacancy)]
+    average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
+    return {
+        programming_language: {
             "vacancies_found": response.json()["found"],
             "vacancies_processed": len(salaries),
             "average_salary": int(average_salary)
         }
-    return programming_languages_vacansies
+    }
 
 
 def predict_rub_salary_for_superJob(vacancy: dict) -> float:
@@ -105,12 +103,14 @@ def main():
     superjob_api_token = os.environ["SUPERJOB_API_TOKEN"]
     programming_languages = ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
 
+    hh_vacansies = dict.fromkeys(programming_languages)
     superjob_vacansies = dict.fromkeys(programming_languages)
-    
+
     for language in programming_languages:
-        # pprint(get_hh_vacancies())
+        hh_vacansies.update(get_hh_vacancies(language))
         superjob_vacansies.update(get_superjob_vacancies(language, superjob_api_token))
 
+    pprint(hh_vacansies)
     pprint(superjob_vacansies)
 
 if __name__ == '__main__':
