@@ -64,53 +64,54 @@ def predict_rub_salary_for_superJob(vacancy: dict) -> float:
         return vacancy["payment_to"] * 0.8
 
 
-def get_superjob_vacancies(token: str) -> dict:
-    programming_languages_vacansies = dict.fromkeys(
-        ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
-    )
-    headers = {
-        "X-Api-App-Id": token,
-    }
-
+def get_superjob_vacancies(programming_language: str, token: str) -> dict:
     published_from = datetime.datetime.now() - datetime.timedelta(days=30)
     published_from_in_unix_time = int(time.mktime(published_from.timetuple()))
     
-    for language_vacancy in programming_languages_vacansies:
-        vacansies = []
-        for page in count():
-            params = {
-                "town": 4,  # 4 - Москва
-                "count": 100,
-                "page": page,
-                # "no_agreement": 1,
-                "keyword": f"Программист {language_vacancy}",
-                "date_published_from ": published_from_in_unix_time,
-            }
-            response = requests.get('https://api.superjob.ru/2.0/vacancies/', headers=headers, params=params)
-            response.raise_for_status()
-            vacansies.extend(response.json()["objects"])
-            if not response.json()["more"]:
-                break
-            
-        salaries = [predict_rub_salary_for_superJob(vacancy) for vacancy in vacansies if predict_rub_salary_for_superJob(vacancy)]
-        average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
+    headers = {
+        "X-Api-App-Id": token,
+    }
+    params = {
+        "town": 4,  # 4 - Москва
+        "count": 100,
+        "page": 0,
+        "keyword": f"Программист {programming_language}",
+        "date_published_from ": published_from_in_unix_time,
+    }    
 
-        programming_languages_vacansies[language_vacancy] = {
+    vacancies = []
+    for page in count():
+        params["page"] = page
+        response = requests.get('https://api.superjob.ru/2.0/vacancies/', headers=headers, params=params)
+        response.raise_for_status()
+        vacancies.extend(response.json()["objects"])
+        if not response.json()["more"]:
+            break
+        
+    salaries = [predict_rub_salary_for_superJob(vacancy) for vacancy in vacancies if predict_rub_salary_for_superJob(vacancy)]
+    average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
+
+    return {
+        programming_language: {
             "vacancies_found": response.json()["total"],
             "vacancies_processed": len(salaries),
             "average_salary": int(average_salary)
         }
-    return programming_languages_vacansies
+    }
 
 
 def main():
     load_dotenv()
     superjob_api_token = os.environ["SUPERJOB_API_TOKEN"]
-    try: 
-        pprint(get_hh_vacancies())
-        pprint(get_superjob_vacancies(superjob_api_token))
-    except requests.exceptions.HTTPError as error:
-        print(error, error.response.text, sep="\n")
+    programming_languages = ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
+
+    superjob_vacansies = dict.fromkeys(programming_languages)
+    
+    for language in programming_languages:
+        # pprint(get_hh_vacancies())
+        superjob_vacansies.update(get_superjob_vacancies(language, superjob_api_token))
+
+    pprint(superjob_vacansies)
 
 if __name__ == '__main__':
     main()
