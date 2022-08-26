@@ -4,6 +4,7 @@
 .python-version
 
 # Environments
+.env
 .venv
 .vscode
 
