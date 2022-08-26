@@ -1,15 +1,8 @@
 # Comparing the salaries of programmers
+
 Get developer vacancies from HeadHunter and SuperJob and calculate the average salary for each program language:
-* Python
-* C
-* Java
-* C++
-* C#
-* Javacsript
-* PHP
-* Go
-* Swift
-* Kotlin
+
+![enter image description here](https://github.com/rudenko-ks/web-api-language-salary/blob/main/output_example.jpg)
 
 ### Install
 
