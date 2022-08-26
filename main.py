@@ -52,6 +52,18 @@ def get_hh_vacancies() -> dict:
     return programming_languages_vacansies
 
 
+def predict_rub_salary_for_superJob(vacancy: dict) -> float:
+    if (vacancy["currency"] != "rub" or 
+        (vacancy["payment_from"] is None and vacancy["payment_to"] is None)):
+        return None
+    elif vacancy["payment_from"] and vacancy["payment_to"]:
+        return (vacancy["payment_from"] + vacancy["payment_to"]) / 2
+    elif vacancy["payment_from"]:
+        return vacancy["payment_from"] * 1.2
+    else:
+        return vacancy["payment_to"] * 0.8
+
+
 def get_superjob_vacancies(token: str) -> dict:
     programming_languages_vacansies = dict.fromkeys(
         ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
@@ -62,9 +74,9 @@ def get_superjob_vacancies(token: str) -> dict:
 
     published_from = datetime.datetime.now() - datetime.timedelta(days=30)
     published_from_in_unix_time = int(time.mktime(published_from.timetuple()))
-
-    vacansies = []
+    
     for language_vacancy in programming_languages_vacansies:
+        vacansies = []
         for page in count():
             params = {
                 "town": 4,  # 4 - Москва
@@ -79,7 +91,16 @@ def get_superjob_vacancies(token: str) -> dict:
             vacansies.extend(response.json()["objects"])
             if not response.json()["more"]:
                 break
-    return vacansies
+            
+        salaries = [predict_rub_salary_for_superJob(vacancy) for vacancy in vacansies if predict_rub_salary_for_superJob(vacancy)]
+        average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
+
+        programming_languages_vacansies[language_vacancy] = {
+            "vacancies_found": response.json()["total"],
+            "vacancies_processed": len(salaries),
+            "average_salary": int(average_salary)
+        }
+    return programming_languages_vacansies
 
 
 def main():
