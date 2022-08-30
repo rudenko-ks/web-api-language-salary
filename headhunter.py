@@ -37,9 +37,7 @@ def get_hh_vacancies(programming_language: str) -> dict:
     salaries = [predict_rub_salary(vacancy) for vacancy in vacansies if predict_rub_salary(vacancy)]
     average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
     return {
-        programming_language: {
-            "vacancies_found": response.json()["found"],
-            "vacancies_processed": len(salaries),
-            "average_salary": int(average_salary)
-        }
+        "vacancies_found": response.json()["found"],
+        "vacancies_processed": len(salaries),
+        "average_salary": int(average_salary)
     }

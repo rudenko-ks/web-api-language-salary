@@ -33,12 +33,12 @@ def main():
     superjob_api_token = os.environ["SUPERJOB_API_TOKEN"]
     programming_languages = ["Python", "C", "Java", "C++", "C#", "Javacsript", "PHP", "Go", "Swift", "Kotlin"]
 
-    hh_vacansies = dict.fromkeys(programming_languages)
-    superjob_vacansies = dict.fromkeys(programming_languages)
+    hh_vacansies = {}
+    superjob_vacansies = {}
 
     for language in programming_languages:
-        hh_vacansies.update(get_hh_vacancies(language))
-        superjob_vacansies.update(get_superjob_vacancies(language, superjob_api_token))
+        hh_vacansies[language] = get_hh_vacancies(language)
+        superjob_vacansies[language] = get_superjob_vacancies(language, superjob_api_token)
 
     print_vacansies(title="HeadHunter", vacansies=hh_vacansies)
     print_vacansies(title="SuperJob", vacansies=superjob_vacansies)
