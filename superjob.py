@@ -17,16 +17,19 @@ def predict_rub_salary_for_superJob(vacancy: dict) -> float:
 
 
 def get_superjob_vacancies(programming_language: str, token: str) -> dict:
+    city = 4  # 4 - Москва
+    vacansies_per_page = 100
     published_from = datetime.datetime.now() - datetime.timedelta(days=30)
     published_from_in_unix_time = int(time.mktime(published_from.timetuple()))
+    start_page = 0
     
     headers = {
         "X-Api-App-Id": token,
     }
     params = {
-        "town": 4,  # 4 - Москва
-        "count": 100,
-        "page": 0,
+        "town": city,  # 4 - Москва
+        "count": vacansies_per_page,
+        "page": start_page,
         "keyword": f"Программист {programming_language}",
         "date_published_from ": published_from_in_unix_time,
     }    
