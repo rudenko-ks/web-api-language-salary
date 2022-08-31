@@ -23,7 +23,7 @@ def predict_rub_salary(vacancy: dict) -> float:
         return salary_to * 0.8
 
 
-def vacancies_to_table_view(title: str, vacansies: dict) -> AsciiTable:
+def format_vacancies_to_table_view(title: str, vacansies: dict) -> AsciiTable:
     table_data = [
         [
             "Язык программирования",
