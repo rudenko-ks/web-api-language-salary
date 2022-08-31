@@ -1,18 +1,8 @@
 from itertools import count
 import requests
 
-
-def predict_rub_salary(vacancy: dict) -> float:
-    if (vacancy["salary"]["currency"] != "RUR" 
-        or (vacancy["salary"]["from"] is None and vacancy["salary"]["to"] is None)):
-        return None
-    elif vacancy["salary"]["from"] and vacancy["salary"]["to"]:
-        return (vacancy["salary"]["from"] + vacancy["salary"]["to"]) / 2
-    elif vacancy["salary"]["from"]:
-        return vacancy["salary"]["from"] * 1.2
-    else:
-        return vacancy["salary"]["to"] * 0.8
-
+from functions import predict_rub_salary
+    
 
 def get_hh_vacancies(programming_language: str) -> dict:
     city = 1  # 1 - Москва

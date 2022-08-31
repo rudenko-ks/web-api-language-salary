@@ -3,17 +3,7 @@ from itertools import count
 import time
 import requests
 
-
-def predict_rub_salary_for_superJob(vacancy: dict) -> float:
-    if (vacancy["currency"] != "rub" \
-        or (vacancy["payment_from"] is None and vacancy["payment_to"] is None)):
-        return None
-    elif vacancy["payment_from"] and vacancy["payment_to"]:
-        return (vacancy["payment_from"] + vacancy["payment_to"]) / 2
-    elif vacancy["payment_from"]:
-        return vacancy["payment_from"] * 1.2
-    else:
-        return vacancy["payment_to"] * 0.8
+from functions import predict_rub_salary
 
 
 def get_superjob_vacancies(programming_language: str, token: str) -> dict:
@@ -27,7 +17,7 @@ def get_superjob_vacancies(programming_language: str, token: str) -> dict:
         "X-Api-App-Id": token,
     }
     params = {
-        "town": city,  # 4 - Москва
+        "town": city,
         "count": vacansies_per_page,
         "page": start_page,
         "keyword": f"Программист {programming_language}",
@@ -43,7 +33,7 @@ def get_superjob_vacancies(programming_language: str, token: str) -> dict:
         if not response.json()["more"]:
             break
         
-    salaries = [predict_rub_salary_for_superJob(vacancy) for vacancy in vacancies if predict_rub_salary_for_superJob(vacancy)]
+    salaries = [predict_rub_salary(vacancy) for vacancy in vacancies if predict_rub_salary(vacancy)]
     average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
 
     return {
