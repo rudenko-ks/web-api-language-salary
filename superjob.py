@@ -29,15 +29,16 @@ def get_superjob_vacancies(programming_language: str, token: str) -> dict:
         params["page"] = page
         response = requests.get('https://api.superjob.ru/2.0/vacancies/', headers=headers, params=params)
         response.raise_for_status()
-        vacancies.extend(response.json()["objects"])
-        if not response.json()["more"]:
+        superjob_vacancies_search_result = response.json()
+        vacancies.extend(superjob_vacancies_search_result["objects"])
+        if not superjob_vacancies_search_result["more"]:
             break
         
     salaries = [rub_salary for vacancy in vacancies if (rub_salary := predict_rub_salary(vacancy))]
     average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
 
     return {
-        "vacancies_found": response.json()["total"],
+        "vacancies_found": superjob_vacancies_search_result["total"],
         "vacancies_processed": len(salaries),
         "average_salary": int(average_salary)
     }

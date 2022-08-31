@@ -25,14 +25,15 @@ def get_hh_vacancies(programming_language: str) -> dict:
         params["page"] = page
         response = requests.get('https://api.hh.ru/vacancies', params=params)
         response.raise_for_status()
-        vacansies.extend(response.json()["items"])
-        if page >= response.json()["pages"]:
+        hh_vacancies_search_result = response.json()
+        vacancies.extend(hh_vacancies_search_result["items"])
+        if page >= hh_vacancies_search_result["pages"]:
             break
         
     salaries = [rub_salary for vacancy in vacancies if (rub_salary := predict_rub_salary(vacancy))]
     average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
     return {
-        "vacancies_found": response.json()["found"],
+        "vacancies_found": hh_vacancies_search_result["found"],
         "vacancies_processed": len(salaries),
         "average_salary": int(average_salary)
     }
