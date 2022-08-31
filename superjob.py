@@ -33,7 +33,7 @@ def get_superjob_vacancies(programming_language: str, token: str) -> dict:
         if not response.json()["more"]:
             break
         
-    salaries = [predict_rub_salary(vacancy) for vacancy in vacancies if predict_rub_salary(vacancy)]
+    salaries = [rub_salary for vacancy in vacancies if (rub_salary := predict_rub_salary(vacancy))]
     average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
 
     return {

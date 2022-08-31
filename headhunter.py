@@ -20,7 +20,7 @@ def get_hh_vacancies(programming_language: str) -> dict:
         "only_with_salary": True,                
     }
 
-    vacansies = []
+    vacancies = []
     for page in count():
         params["page"] = page
         response = requests.get('https://api.hh.ru/vacancies', params=params)
@@ -29,7 +29,7 @@ def get_hh_vacancies(programming_language: str) -> dict:
         if page >= response.json()["pages"]:
             break
         
-    salaries = [predict_rub_salary(vacancy) for vacancy in vacansies if predict_rub_salary(vacancy)]
+    salaries = [rub_salary for vacancy in vacancies if (rub_salary := predict_rub_salary(vacancy))]
     average_salary = sum(salaries) / len(salaries) if len(salaries) else 0
     return {
         "vacancies_found": response.json()["found"],
