@@ -13,14 +13,14 @@ def predict_rub_salary(vacancy: dict) -> float:
     else:
         return None
 
-    if ("rub" in currency) or ("RUR" in currency):
-        if salary_from and salary_to:
-            return (salary_from + salary_to) / 2
-        elif salary_from:
-            return salary_from * 1.2
-        elif salary_to:
-            return salary_to * 0.8
-    return None
+    if not (("rub" in currency) or ("RUR" in currency)):
+        return None
+    elif salary_from and salary_to:
+        return (salary_from + salary_to) / 2
+    elif salary_from:
+        return salary_from * 1.2
+    elif salary_to:
+        return salary_to * 0.8
 
 
 def vacancies_to_table_view(title: str, vacansies: dict) -> AsciiTable:
