@@ -18,9 +18,9 @@ def main():
         hh_vacanсies[language] = get_hh_vacancies(language)
         superjob_vacanсies[language] = get_superjob_vacancies(language, superjob_api_token)
 
-    hh_table_view = format_vacancies_to_table_view(title="HeadHunter", vacansies=hh_vacanсies)
+    hh_table_view = format_vacancies_to_table_view(title="HeadHunter", vacancies=hh_vacanсies)
     print(hh_table_view.table)
-    superjob_table_view = format_vacancies_to_table_view(title="SuperJob", vacansies=superjob_vacanсies)
+    superjob_table_view = format_vacancies_to_table_view(title="SuperJob", vacancies=superjob_vacanсies)
     print(superjob_table_view.table)
 
 if __name__ == '__main__':

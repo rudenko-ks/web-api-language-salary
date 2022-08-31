@@ -8,7 +8,7 @@ from functions import predict_rub_salary
 
 def get_superjob_vacancies(programming_language: str, token: str) -> dict:
     city = 4  # 4 - Москва
-    vacansies_per_page = 100
+    vacancies_per_page = 100
     published_from = datetime.datetime.now() - datetime.timedelta(days=30)
     published_from_in_unix_time = int(time.mktime(published_from.timetuple()))
     start_page = 0
@@ -18,7 +18,7 @@ def get_superjob_vacancies(programming_language: str, token: str) -> dict:
     }
     params = {
         "town": city,
-        "count": vacansies_per_page,
+        "count": vacancies_per_page,
         "page": start_page,
         "keyword": f"Программист {programming_language}",
         "date_published_from ": published_from_in_unix_time,
